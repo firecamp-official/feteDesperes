@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DOSSIER CLASSIFIÉ — PÈRE</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --desk:     #1a1410;
+  --folder:   #c4872a;
+  --folder-d: #9a6318;
+  --paper:    #f0e8d5;
+  --paper-d:  #e0d4b8;
+  --paper-s:  #d4c89a;
+  --ink:      #1a1208;
+  --ink-fade: #3d2f18;
+  --red-stamp:#8b0000;
+  --blue-ink: #1a2f5e;
+  --tape:     rgba(200,190,160,0.45);
+  --staple:   #888;
+  --hole:     #0a0806;
+}
+
+@keyframes fadeIn   { from{opacity:0}to{opacity:1} }
+@keyframes slideDown{ from{opacity:0;transform:translateY(-30px)}to{opacity:1;transform:translateY(0)} }
+@keyframes pageFlip { from{opacity:0;transform:rotateX(8deg) translateY(-10px)}to{opacity:1;transform:rotateX(0) translateY(0)} }
+@keyframes stampDown{ 0%{opacity:0;transform:scale(1.6) rotate(-12deg)}60%{transform:scale(0.92) rotate(-12deg)}100%{opacity:1;transform:scale(1) rotate(-12deg)} }
+@keyframes blink    { 0%,100%{opacity:1}50%{opacity:0} }
+
+html,body {
+  min-height: 100vh;
+  background: var(--desk);
+  background-image:
+    radial-gradient(ellipse at 30% 20%, #2a1f0e 0%, transparent 60%),
+    radial-gradient(ellipse at 70% 80%, #0d0a06 0%, transparent 60%);
+  font-family: 'Courier New', monospace;
+  overflow-x: hidden;
+}
+
+/* INTRO */
+#intro {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 40px 20px;
+}
+
+.folder-cover {
+  width: min(520px, 94vw);
+  background: var(--folder);
+  background-image:
+    repeating-linear-gradient(90deg, transparent, transparent 8px, rgba(0,0,0,0.04) 8px, rgba(0,0,0,0.04) 9px),
+    repeating-linear-gradient(0deg,  transparent, transparent 8px, rgba(0,0,0,0.04) 8px, rgba(0,0,0,0.04) 9px);
+  border-radius: 3px;
+  box-shadow:
+    inset 0 0 0 3px var(--folder-d),
+    inset 0 0 0 6px rgba(0,0,0,0.15),
+    6px 8px 24px rgba(0,0,0,0.7),
+    0 0 60px rgba(0,0,0,0.4);
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.folder-cover:hover {
+  transform: translateY(-4px) rotate(-0.5deg);
+  box-shadow:
+    inset 0 0 0 3px var(--folder-d),
+    inset 0 0 0 6px rgba(0,0,0,0.15),
+    10px 16px 40px rgba(0,0,0,0.8),
+    0 0 80px rgba(0,0,0,0.5);
+}
+
+.folder-tab {
+  position: absolute;
+  top: -28px; left: 40px;
+  width: 120px; height: 30px;
+  background: var(--folder);
+  background-image: repeating-linear-gradient(90deg, transparent, transparent 8px, rgba(0,0,0,0.04) 8px, rgba(0,0,0,0.04) 9px);
+  border-radius: 6px 6px 0 0;
+  box-shadow: inset 0 0 0 3px var(--folder-d), inset 0 -3px 0 var(--folder-d);
+  display: flex; align-items: center; justify-content: center;
+}
+.folder-tab span { font-size: 9px; letter-spacing: 2px; color: var(--folder-d); font-weight: bold; text-transform: uppercase; }
+
+.holes {
+  position: absolute; left: 20px; top: 0; bottom: 0;
+  display: flex; flex-direction: column; justify-content: space-evenly;
+  padding: 30px 0; pointer-events: none;
+}
+.hole {
+  width: 16px; height: 16px; border-radius: 50%;
+  background: var(--hole);
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.8), 0 1px 0 rgba(255,255,255,0.1);
+  border: 1px solid rgba(0,0,0,0.4);
+}
+
+.folder-inner { margin: 0 0 0 48px; padding: 28px 28px 32px 20px; min-height: 360px; display: flex; flex-direction: column; gap: 16px; }
+
+.cover-stripe { background: var(--blue-ink); height: 4px; margin: 0 0 8px; opacity: 0.8; }
+.cover-label-top { font-size: 9px; letter-spacing: 4px; color: var(--folder-d); text-transform: uppercase; text-align: center; opacity: 0.8; }
+
+.cover-title { text-align: center; margin: 8px 0; }
+.cover-title-main { display: block; font-size: clamp(22px, 5vw, 34px); font-weight: bold; color: var(--ink); letter-spacing: 4px; text-transform: uppercase; line-height: 1.1; }
+.cover-title-sub { display: block; font-size: 12px; color: var(--ink-fade); letter-spacing: 2px; margin-top: 4px; }
+
+.cover-ref-box {
+  border: 1px solid var(--folder-d); padding: 10px 14px;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 6px 16px;
+  background: rgba(0,0,0,0.06);
+}
+.cover-ref-line { font-size: 10px; color: var(--ink-fade); letter-spacing: 1px; }
+.cover-ref-val  { font-size: 10px; color: var(--ink); font-weight: bold; }
+
+.cover-stamp-confidential {
+  position: absolute; top: 28px; right: 24px;
+  border: 3px solid var(--red-stamp); color: var(--red-stamp);
+  font-size: 11px; font-weight: bold; letter-spacing: 3px; text-transform: uppercase;
+  padding: 6px 12px; transform: rotate(-8deg); opacity: 0.85; text-align: center; pointer-events: none;
+}
+.cover-stamp-num {
+  position: absolute; bottom: 24px; right: 24px;
+  font-size: 28px; font-weight: bold; color: var(--red-stamp);
+  opacity: 0.12; letter-spacing: 2px; pointer-events: none; line-height: 1;
+}
+
+.cover-barcode { display: flex; gap: 2px; align-items: stretch; height: 28px; margin-top: 4px; }
+.bar { background: var(--ink); opacity: 0.6; flex-shrink: 0; }
+
+.cover-open-btn {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  margin-top: 8px; padding: 12px; background: var(--ink); color: var(--paper);
+  font-family: 'Courier New', monospace; font-size: 11px; letter-spacing: 3px;
+  text-transform: uppercase; border: none; cursor: pointer; width: 100%; transition: background 0.2s;
+}
+.cover-open-btn:hover { background: #2a1e0e; }
+
+/* DOSSIER OUVERT */
+#dossier { display: none; min-height: 100vh; padding: 40px 16px 80px; max-width: 700px; margin: 0 auto; }
+#dossier.open { display: block; animation: fadeIn 0.6s ease; }
+
+.tab-header {
+  background: var(--folder);
+  background-image: repeating-linear-gradient(90deg, transparent, transparent 8px, rgba(0,0,0,0.04) 8px, rgba(0,0,0,0.04) 9px);
+  padding: 10px 20px 10px 52px;
+  border-radius: 4px 4px 0 0;
+  display: flex; align-items: baseline; gap: 12px;
+  box-shadow: inset 0 0 0 2px var(--folder-d); position: relative;
+}
+.tab-header-holes { position: absolute; left: 12px; top: 0; bottom: 0; display: flex; flex-direction: column; justify-content: center; gap: 6px; }
+.tab-header-hole { width: 10px; height: 10px; border-radius: 50%; background: var(--hole); border: 1px solid rgba(0,0,0,0.4); }
+.tab-label { font-size: 9px; letter-spacing: 3px; color: var(--folder-d); text-transform: uppercase; }
+.tab-title { font-size: 14px; font-weight: bold; color: var(--ink); letter-spacing: 2px; text-transform: uppercase; }
+
+.paper-sheet {
+  background: var(--paper);
+  background-image: repeating-linear-gradient(0deg, transparent, transparent 23px, rgba(100,80,40,0.08) 23px, rgba(100,80,40,0.08) 24px);
+  border-radius: 0 0 3px 3px;
+  padding: 32px 36px 36px 52px;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.12), 4px 6px 20px rgba(0,0,0,0.5), 0 2px 0 var(--paper-s);
+  position: relative; margin-bottom: 32px;
+}
+.paper-sheet::after {
+  content: ''; position: absolute; bottom: 0; right: 0;
+  width: 0; height: 0; border-style: solid;
+  border-width: 0 0 20px 20px;
+  border-color: transparent transparent var(--paper-s) transparent;
+  pointer-events: none;
+}
+
+.paper-margin-line { position: absolute; left: 44px; top: 0; bottom: 0; width: 1px; background: rgba(180,80,80,0.25); pointer-events: none; }
+
+.staple { position: absolute; top: 14px; right: 28px; width: 22px; height: 3px; background: var(--staple); border-radius: 1px; box-shadow: 0 1px 2px rgba(0,0,0,0.4); }
+.staple::before,.staple::after { content:''; position: absolute; width: 3px; height: 6px; background: var(--staple); border-radius: 0 0 1px 1px; bottom: 0; }
+.staple::before { left: 0; }
+.staple::after  { right: 0; }
+
+.tape { position: absolute; top: -6px; left: 50%; transform: translateX(-50%) rotate(-1deg); width: 80px; height: 18px; background: var(--tape); border-radius: 2px; pointer-events: none; }
+
+.sheet-holes { position: absolute; left: 16px; top: 0; bottom: 0; display: flex; flex-direction: column; justify-content: space-evenly; padding: 20px 0; pointer-events: none; }
+.sheet-hole { width: 12px; height: 12px; border-radius: 50%; background: var(--paper-d); border: 1px solid rgba(0,0,0,0.2); box-shadow: inset 0 1px 3px rgba(0,0,0,0.3); }
+
+.stamp {
+  display: inline-block; border: 3px solid var(--red-stamp); color: var(--red-stamp);
+  font-size: 12px; font-weight: bold; letter-spacing: 3px; text-transform: uppercase;
+  padding: 6px 14px; transform: rotate(-9deg); opacity: 0; pointer-events: none; margin: 4px 0;
+}
+.stamp.show { animation: stampDown 0.4s ease forwards; }
+.stamp-blue { border-color: var(--blue-ink); color: var(--blue-ink); transform: rotate(2deg); font-size: 9px; letter-spacing: 2px; padding: 4px 10px; }
+
+.doc-header { text-align: center; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid var(--ink); }
+.doc-header-agency { font-size: 9px; letter-spacing: 4px; color: var(--ink-fade); text-transform: uppercase; margin-bottom: 4px; }
+.doc-header-title  { font-size: 20px; font-weight: bold; color: var(--ink); letter-spacing: 3px; text-transform: uppercase; }
+.doc-header-sub    { font-size: 10px; color: var(--ink-fade); letter-spacing: 2px; margin-top: 2px; }
+
+.id-grid { display: grid; grid-template-columns: auto 1fr; gap: 8px 16px; margin: 16px 0; }
+.id-label { font-size: 10px; letter-spacing: 2px; color: var(--ink-fade); text-transform: uppercase; white-space: nowrap; padding-right: 8px; border-right: 1px solid rgba(0,0,0,0.2); }
+.id-val   { font-size: 12px; color: var(--ink); font-weight: bold; border-bottom: 1px dotted rgba(0,0,0,0.2); padding-bottom: 2px; }
+.id-val.important { color: var(--red-stamp); }
+.id-val.good      { color: #1a4a1a; }
+
+.evidence-sheet {
+  background: var(--paper);
+  background-image: repeating-linear-gradient(0deg, transparent, transparent 23px, rgba(100,80,40,0.08) 23px, rgba(100,80,40,0.08) 24px);
+  border-radius: 2px; padding: 24px 28px 28px 48px; margin-bottom: 16px;
+  box-shadow: 3px 4px 12px rgba(0,0,0,0.4), 0 1px 0 var(--paper-s), inset 0 0 0 1px rgba(0,0,0,0.1);
+  position: relative; display: none; transform-origin: top center;
+}
+.evidence-sheet.show { display: block; animation: pageFlip 0.5s ease forwards; }
+
+.ev-number { position: absolute; top: 12px; right: 16px; font-size: 28px; font-weight: bold; color: rgba(0,0,0,0.07); pointer-events: none; }
+.ev-label  { font-size: 9px; letter-spacing: 3px; color: var(--ink-fade); text-transform: uppercase; margin-bottom: 6px; }
+.ev-title  { font-size: 14px; font-weight: bold; color: var(--ink); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
+.ev-body   { font-size: 12px; color: var(--ink-fade); line-height: 2; }
+.ev-meta   { margin-top: 14px; padding-top: 10px; border-top: 1px solid rgba(0,0,0,0.12); font-size: 9px; letter-spacing: 2px; color: var(--ink-fade); text-transform: uppercase; opacity: 0.7; }
+
+.report-section { margin-bottom: 20px; }
+.report-section-title { font-size: 9px; letter-spacing: 3px; color: var(--ink-fade); text-transform: uppercase; margin-bottom: 8px; padding-bottom: 3px; border-bottom: 1px solid rgba(0,0,0,0.15); }
+.report-body { font-size: 12px; color: var(--ink-fade); line-height: 2.1; }
+.report-body strong { color: var(--ink); font-weight: bold; }
+
+.trait-item { font-size: 12px; color: var(--ink-fade); padding: 4px 0 4px 16px; position: relative; line-height: 1.6; border-bottom: 1px dotted rgba(0,0,0,0.1); }
+.trait-item::before { content: '▸'; position: absolute; left: 0; color: var(--red-stamp); font-size: 10px; }
+
+.conclusion-paper { background: var(--paper); padding: 60px 40px 60px 56px; text-align: center; position: relative; border-radius: 2px; box-shadow: 4px 6px 24px rgba(0,0,0,0.6), inset 0 0 0 1px rgba(0,0,0,0.1); }
+.conclusion-final-status { font-size: 13px; letter-spacing: 4px; color: var(--ink-fade); text-transform: uppercase; margin-bottom: 8px; }
+.conclusion-final-word   { font-size: clamp(40px, 10vw, 72px); font-weight: bold; color: var(--ink); letter-spacing: 10px; text-transform: uppercase; margin: 20px 0; }
+.conclusion-final-sub    { font-size: 11px; color: var(--ink-fade); line-height: 2; max-width: 340px; margin: 0 auto; }
+
+.nav-bar { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 24px; align-items: center; }
+.evidence-nav { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+.ev-count { font-size: 10px; color: var(--ink-fade); letter-spacing: 2px; margin-bottom: 8px; }
+
+.btn-paper { background: var(--ink); color: var(--paper); border: none; font-family: 'Courier New', monospace; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; padding: 10px 20px; cursor: pointer; transition: background 0.2s; }
+.btn-paper:hover { background: #2a1e0e; }
+.btn-ghost-paper { background: transparent; color: var(--ink-fade); border: 1px solid rgba(0,0,0,0.25); font-family: 'Courier New', monospace; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; padding: 9px 18px; cursor: pointer; transition: all 0.2s; }
+.btn-ghost-paper:hover { border-color: var(--ink); color: var(--ink); }
+
+.ruled-line { height: 1px; background: rgba(0,0,0,0.15); margin: 16px 0; }
+.postit { background: #fdf3a3; padding: 10px 14px; transform: rotate(1.5deg); display: inline-block; box-shadow: 2px 2px 6px rgba(0,0,0,0.2); font-size: 11px; color: #3a3000; font-style: italic; margin: 4px 0; }
+.section-block { margin-bottom: 48px; }
+
+@media (max-width: 500px) {
+  .paper-sheet { padding: 24px 20px 28px 40px; }
+  .id-grid { grid-template-columns: 1fr; }
+  .id-label { border-right: none; border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 2px; }
+}
+</style>
+</head>
+<body>
+
+<!-- INTRO -->
+<div id="intro">
+  <div class="folder-cover" onclick="ouvrirDossier()" role="button" tabindex="0" aria-label="Ouvrir le dossier">
+    <div class="folder-tab"><span>Dossier 001</span></div>
+    <div class="holes"><div class="hole"></div><div class="hole"></div><div class="hole"></div></div>
+    <div class="folder-inner">
+      <div class="cover-stripe"></div>
+      <p class="cover-label-top">Direction des affaires familiales — usage interne</p>
+      <div class="cover-title">
+        <span class="cover-title-main">DOSSIER<br>CLASSIFIÉ</span>
+        <span class="cover-title-sub">— PÈRE —</span>
+      </div>
+      <div class="cover-stamp-confidential">CONFIDENTIEL</div>
+      <div class="cover-stamp-num">001</div>
+      <div class="cover-ref-box">
+        <span class="cover-ref-line">Réf. dossier</span>   <span class="cover-ref-val">DAF-001/PÈRE</span>
+        <span class="cover-ref-line">Classification</span> <span class="cover-ref-val">Niveau Ω</span>
+        <span class="cover-ref-line">Statut</span>         <span class="cover-ref-val">En cours</span>
+        <span class="cover-ref-line">Accès</span>          <span class="cover-ref-val">Restreint</span>
+      </div>
+      <div class="cover-barcode" id="barcode"></div>
+      <button class="cover-open-btn">▶ &nbsp; Ouvrir le dossier</button>
+    </div>
+  </div>
+</div>
+
+<!-- DOSSIER -->
+<div id="dossier">
+
+  <div class="section-block" id="bloc-identite">
+    <div class="tab-header">
+      <div class="tab-header-holes"><div class="tab-header-hole"></div><div class="tab-header-hole"></div></div>
+      <span class="tab-label">Fichier 01 /</span>
+      <span class="tab-title">Fiche d'identification</span>
+    </div>
+    <div class="paper-sheet">
+      <div class="sheet-holes"><div class="sheet-hole"></div><div class="sheet-hole"></div><div class="sheet-hole"></div></div>
+      <div class="paper-margin-line"></div>
+      <div class="staple"></div>
+      <div class="doc-header">
+        <p class="doc-header-agency">Direction des affaires familiales</p>
+        <p class="doc-header-title">FICHE SUJET</p>
+        <p class="doc-header-sub">Formulaire DAF-7 — Identification principale</p>
+      </div>
+      <div class="ruled-line"></div>
+      <div class="id-grid" id="id-grid"></div>
+      <div class="ruled-line"></div>
+      <div style="display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start;margin-top:8px;">
+        <div class="stamp" id="stamp-conf">CONFIDENTIEL</div>
+        <div class="stamp stamp-blue" id="stamp-valid">VALIDÉ — SERVICE FAMILLE</div>
+      </div>
+      <div class="nav-bar">
+        <button class="btn-paper" onclick="allerA('bloc-preuves')">Consulter les preuves →</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-block" id="bloc-preuves" style="display:none">
+    <div class="tab-header">
+      <div class="tab-header-holes"><div class="tab-header-hole"></div><div class="tab-header-hole"></div></div>
+      <span class="tab-label">Fichier 02 /</span>
+      <span class="tab-title">Pièces à conviction</span>
+    </div>
+    <div class="paper-sheet" style="padding-bottom:20px">
+      <div class="sheet-holes"><div class="sheet-hole"></div><div class="sheet-hole"></div><div class="sheet-hole"></div></div>
+      <div class="paper-margin-line"></div>
+      <div class="staple"></div>
+      <div class="doc-header">
+        <p class="doc-header-agency">Pièces à conviction — preuves collectées</p>
+        <p class="doc-header-title">SOUVENIRS — DOSSIER PÈRE</p>
+        <p class="doc-header-sub">Formulaire DAF-14 — Annexe B</p>
+      </div>
+      <p class="ev-count">Pièce <span id="ev-current">1</span> sur <span id="ev-total"></span></p>
+      <div id="preuves-container"></div>
+      <div class="evidence-nav">
+        <button class="btn-ghost-paper" id="btn-next-ev" onclick="prochainPreuve()">Preuve suivante ▸</button>
+        <button class="btn-paper" id="btn-to-analyse" onclick="allerA('bloc-analyse')" style="display:none">Passer à l'analyse →</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-block" id="bloc-analyse" style="display:none">
+    <div class="tab-header">
+      <div class="tab-header-holes"><div class="tab-header-hole"></div><div class="tab-header-hole"></div></div>
+      <span class="tab-label">Fichier 03 /</span>
+      <span class="tab-title">Rapport d'analyse</span>
+    </div>
+    <div class="paper-sheet">
+      <div class="sheet-holes"><div class="sheet-hole"></div><div class="sheet-hole"></div><div class="sheet-hole"></div></div>
+      <div class="paper-margin-line"></div>
+      <div class="tape"></div>
+      <div class="doc-header">
+        <p class="doc-header-agency">Analyse comportementale — rapport interne</p>
+        <p class="doc-header-title">ÉVALUATION DU SUJET</p>
+        <p class="doc-header-sub">Formulaire DAF-22 — Rapport final</p>
+      </div>
+      <div class="report-section">
+        <p class="report-section-title">Qualités identifiées</p>
+        <div id="traits-container"></div>
+      </div>
+      <div class="ruled-line"></div>
+      <div class="report-section">
+        <p class="report-section-title">Résumé de l'impact</p>
+        <p class="report-body" id="resume-impact"></p>
+      </div>
+      <div class="ruled-line"></div>
+      <div class="report-section">
+        <p class="report-section-title">Évaluation finale</p>
+        <p class="report-body" id="eval-finale"></p>
+      </div>
+      <div style="margin-top:16px;"><div class="postit" id="postit-note"></div></div>
+      <div class="nav-bar">
+        <button class="btn-paper" onclick="allerA('bloc-conclusion')">Voir la conclusion →</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-block" id="bloc-conclusion" style="display:none">
+    <div class="tab-header">
+      <div class="tab-header-holes"><div class="tab-header-hole"></div><div class="tab-header-hole"></div></div>
+      <span class="tab-label">Fichier 04 /</span>
+      <span class="tab-title">Conclusion — Dossier clos</span>
+    </div>
+    <div class="conclusion-paper paper-sheet">
+      <div class="sheet-holes"><div class="sheet-hole"></div><div class="sheet-hole"></div><div class="sheet-hole"></div></div>
+      <div class="paper-margin-line"></div>
+      <p class="conclusion-final-status" id="c-status"></p>
+      <div style="display:inline-block;margin:8px 0;">
+        <div class="stamp" id="stamp-irrempla" style="font-size:15px;padding:10px 20px;border-width:4px;"></div>
+      </div>
+      <p class="conclusion-final-word" id="c-word"></p>
+      <p class="conclusion-final-sub" id="c-sub"></p>
+      <div style="margin-top:32px;padding-top:20px;border-top:1px solid rgba(0,0,0,0.1);">
+        <button class="btn-ghost-paper" onclick="fermerDossier()">↩ Fermer le dossier</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ╔══════════════════════════════════╗
+// ║   ZONE DE PERSONNALISATION       ║
+// ╚══════════════════════════════════╝
+
+const IDENTITE = [
+  { label: "Nom de code",             val: "PAPA",                       cls: "" },
+  { label: "Statut",                  val: "Actif",   cls: "important" },
+  { label: "Niveau de fiabilité",     val: "100 %",   cls: "good" },
+  { label: "Importance", val: "Maximale",    cls: "important" },
+  { label: "Rôle",                    val: "Père, mentor, complice",      cls: "" },
+  { label: "Durée d'observation",     val: "Toute une vie",               cls: "" },
+  { label: "Dossier ouvert le",       val: "30/07/2009",     cls: "" },
+];
+
+const PREUVES = [
+  {
+    titre: "Il n'a rien dit. Il était là.",
+    corps: "Il y a eu des moments difficiles où je n'avais pas besoin de conseils. Pas besoin de solutions. Juste besoin que quelqu'un soit dans la pièce. Il l'a toujours compris sans qu'on lui explique.",
+    meta:  "Observation récurrente — Classé",
+  },
+  {
+    titre: "Le trajet en voiture",
+    corps: "Les conversations les plus importantes qu'on a eues, c'était en voiture (en vraie). Du comment ça va au projets d'avenir. Il sait parler et écouter sans interrompre.",
+    meta:  "Lieu : voiture — Durée : 16 ans",
+  },
+  {
+    titre: "Il regardait sans intervenir",
+    corps: "Il m'a laissé me tromper. M'a laissé recommencer. Ne m'a jamais dit 'je t'avais prévenu', même quand il aurait pu. C'est ça, la confiance qui compte.",
+    meta:  "Type : preuve de respect.",
+  },
+  {
+    titre: "Toujours au bon endroit",
+    corps: "Je n'ai jamais eu à chercher longtemps avant de le trouver. Il n'a pas besoin d'être bruyant pour être présent. Il est là. Il a toujours été là.",
+    meta:  "Fréquence : permanente",
+  },
+  {
+    titre: "Ce qu'il ne dit pas",
+    corps: "Il ne dit pas tout le temps 'je suis fier de toi'. Mais pas grave, ça se voit autrement,dans ses yeux, dans la façon dont il parle de moi aux autres, dans le silence. Un silence qui vaut tous les mots.",
+    meta:  "Classification : preuve émotionnelle",
+  },
+];
+
+const ANALYSE = {
+  traits: [
+    "Patience hors du commun",
+    "Présence discrète mais constante",
+    "Humour déployé avec précision",
+    "Honnêteté bienveillante — dit la vérité sans blesser",
+    "Solidité : n'a jamais craqué quand c'était interdit de craquer",
+    "Curiosité intacte — continue d'apprendre, à tout âge",
+  ],
+  resumeImpact: `Le sujet a exercé une influence <strong>déterminante</strong> sur le développement du rapporteur. Non par imposition, mais par l'exemple silencieux. Ses actions ont forgé une boussole morale, une capacité à persévérer, et une confiance en soi que le sujet n'a jamais réclamées en retour.`,
+  evalFinale:   `Après analyse complète des éléments, le dossier établit que l'impact du sujet est <strong>profond, durable et irremplaçable</strong>. Aucune donnée contradictoire n'a été trouvée. Le rapport est considéré comme définitif.`,
+  postit:       `Note de l'enquêteur : certains dossiers ne se ferment jamais vraiment.`,
+};
+
+const CONCLUSION = {
+  status: "Statut final du sujet :",
+  stamp:  "IRREMPLAÇABLE",
+  word:   "MERCI",
+  sub:    "Ce dossier a été constitué avec soin. Classifié non pas pour être caché... Mais parce que certaines choses méritent d'être traitées avec importance.",
+};
+
+// ══ MOTEUR ══
+let evIndex = 0;
+
+function init() {
+  const bc = document.getElementById('barcode');
+  [3,1,2,1,3,2,1,2,3,1,2,1,3,2,1,2,3,1,1,2,3].forEach((w,i) => {
+    const b = document.createElement('div');
+    b.className = 'bar';
+    b.style.width = w + 'px';
+    b.style.opacity = i%2===0 ? '0.6' : '0';
+    bc.appendChild(b);
+  });
+
+  const grid = document.getElementById('id-grid');
+  IDENTITE.forEach(f => {
+    const l = document.createElement('span'); l.className='id-label'; l.textContent=f.label;
+    const v = document.createElement('span'); v.className='id-val '+(f.cls||''); v.textContent=f.val;
+    grid.appendChild(l); grid.appendChild(v);
+  });
+
+  document.getElementById('ev-total').textContent = PREUVES.length;
+  const pc = document.getElementById('preuves-container');
+  PREUVES.forEach((p,i) => {
+    const d = document.createElement('div');
+    d.className = 'evidence-sheet' + (i===0?' show':'');
+    d.id = 'ev-'+i;
+    d.innerHTML = `
+      <div class="sheet-holes"><div class="sheet-hole"></div><div class="sheet-hole"></div></div>
+      <div class="paper-margin-line"></div>
+      <div class="ev-number">${String(i+1).padStart(2,'0')}</div>
+      <p class="ev-label">// Pièce à conviction n°${String(i+1).padStart(2,'0')}</p>
+      <p class="ev-title">${p.titre}</p>
+      <p class="ev-body">${p.corps}</p>
+      <p class="ev-meta">${p.meta}</p>
+    `;
+    pc.appendChild(d);
+  });
+
+  const tc = document.getElementById('traits-container');
+  ANALYSE.traits.forEach(t => {
+    const d = document.createElement('div'); d.className='trait-item'; d.textContent=t;
+    tc.appendChild(d);
+  });
+
+  document.getElementById('resume-impact').innerHTML = ANALYSE.resumeImpact;
+  document.getElementById('eval-finale').innerHTML   = ANALYSE.evalFinale;
+  document.getElementById('postit-note').textContent = ANALYSE.postit;
+  document.getElementById('c-status').textContent    = CONCLUSION.status;
+  document.getElementById('stamp-irrempla').textContent = CONCLUSION.stamp;
+  document.getElementById('c-word').textContent      = CONCLUSION.word;
+  document.getElementById('c-sub').textContent       = CONCLUSION.sub;
+}
+
+function ouvrirDossier() {
+  document.getElementById('intro').style.display = 'none';
+  const d = document.getElementById('dossier');
+  d.classList.add('open');
+  setTimeout(()=>{ document.getElementById('stamp-conf').classList.add('show'); }, 600);
+  setTimeout(()=>{ document.getElementById('stamp-valid').classList.add('show'); }, 1000);
+  window.scrollTo({top:0});
+}
+
+function fermerDossier() {
+  document.getElementById('dossier').classList.remove('open');
+  document.getElementById('dossier').style.display = 'none';
+  document.getElementById('intro').style.display = 'flex';
+  evIndex = 0;
+  document.getElementById('ev-current').textContent = '1';
+  document.querySelectorAll('.evidence-sheet').forEach((e,i)=>{ e.className='evidence-sheet'+(i===0?' show':''); });
+  document.getElementById('btn-next-ev').style.display = '';
+  document.getElementById('btn-to-analyse').style.display = 'none';
+  ['bloc-preuves','bloc-analyse','bloc-conclusion'].forEach(id=>{ document.getElementById(id).style.display='none'; });
+  document.getElementById('bloc-identite').style.display = 'block';
+  document.getElementById('stamp-conf').classList.remove('show');
+  document.getElementById('stamp-valid').classList.remove('show');
+  document.getElementById('stamp-irrempla').classList.remove('show');
+  window.scrollTo({top:0});
+}
+
+function allerA(id) {
+  ['bloc-identite','bloc-preuves','bloc-analyse','bloc-conclusion'].forEach(b => {
+    document.getElementById(b).style.display = (b===id)?'block':'none';
+  });
+  if(id==='bloc-conclusion') {
+    setTimeout(()=>{ document.getElementById('stamp-irrempla').classList.add('show'); }, 400);
+  }
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function prochainPreuve() {
+  if(evIndex >= PREUVES.length-1) return;
+  evIndex++;
+  document.getElementById('ev-'+evIndex).classList.add('show');
+  document.getElementById('ev-current').textContent = evIndex+1;
+  if(evIndex >= PREUVES.length-1){
+    document.getElementById('btn-next-ev').style.display='none';
+    document.getElementById('btn-to-analyse').style.display='';
+  }
+}
+
+document.addEventListener('keydown', e => {
+  if(e.key==='Enter' && document.getElementById('intro').style.display!=='none') ouvrirDossier();
+});
+
+init();
+</script>
+</body>
+</html>
